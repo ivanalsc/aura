@@ -22,19 +22,26 @@ export default function PhotoCard({
 }: PhotoCardProps) {
   return (
     <div className="break-inside-avoid mb-6 animate-[fadeIn_0.6s_ease-out] relative group">
-      <div className="bg-white rounded-xl shadow-sm group-hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] group-hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-black/5">
+      <div className="bg-white rounded-[4px] shadow-sm group-hover:shadow-md transition-all duration-300 overflow-hidden border border-black/[0.03]">
         <img
           src={photo.image_url}
           alt="Momento del evento"
           className="w-full block object-cover"
           loading="lazy"
         />
+        {photo.caption && (
+          <div className="px-4 pt-4 pb-1">
+            <p className="text-charcoal/80 text-sm font-light leading-relaxed break-words font-serif">
+              {photo.caption}
+            </p>
+          </div>
+        )}
         <div className="p-4 flex justify-between items-center bg-white/50 backdrop-blur-sm">
           <button
             onClick={() => onLike(photo.id, photo.likes)}
             className={`border-none cursor-pointer flex items-center gap-2 text-sm px-3 py-2 rounded-full transition-all duration-200 active:scale-95 ${isLiked
-                ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                : 'bg-transparent text-stone-600 hover:bg-stone-100 hover:text-charcoal'
+              ? 'bg-red-50 text-red-600 hover:bg-red-100'
+              : 'bg-transparent text-stone-600 hover:bg-stone-100 hover:text-charcoal'
               }`}
           >
             <Heart

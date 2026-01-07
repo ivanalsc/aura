@@ -5,6 +5,7 @@ export interface Photo {
   likes: number
   created_at: string
   device_id?: string
+  caption?: string
 }
 
 export interface Particle {

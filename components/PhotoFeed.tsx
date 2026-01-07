@@ -6,6 +6,8 @@ import { Photo, Particle } from '@/lib/types'
 import PhotoCard from './PhotoCard'
 import FAB from './FAB'
 import UploadModal from './UploadModal'
+import CameraModal from './CameraModal'
+import DigitalJournalButton from './DigitalJournalButton'
 import { STORAGE_BUCKET } from '@/lib/constants'
 
 interface PhotoFeedProps {
@@ -15,6 +17,7 @@ interface PhotoFeedProps {
 export default function PhotoFeed({ eventId }: PhotoFeedProps) {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [showUpload, setShowUpload] = useState(false)
+  const [showCamera, setShowCamera] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -112,9 +115,10 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
     setSelectedFile(file)
     setPreview(URL.createObjectURL(file))
     setShowUpload(true)
+    setShowCamera(false)
   }
 
-  const handleUpload = async () => {
+  const handleUpload = async (caption: string) => {
     if (!selectedFile) return
 
     setUploading(true)
@@ -144,7 +148,8 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
             event_id: eventId,
             image_url: publicUrl,
             likes: 0,
-            device_id: deviceId
+            device_id: deviceId,
+            caption: caption
           }
         ])
         .select()
@@ -243,8 +248,15 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
     setUploading(false)
   }
 
+
+
   return (
     <>
+      {/* Actions Header */}
+      <div className="max-w-7xl mx-auto px-4 pt-6 flex justify-end animate-[fadeIn_0.5s_ease-out]">
+        <DigitalJournalButton eventName={eventId} photos={photos} />
+      </div>
+
       {/* Masonry Grid */}
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         {photos.length > 0 ? (
@@ -266,7 +278,6 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
           </div>
         ) : (
           <div className="text-center py-20">
-            <div className="text-6xl mb-4">📸</div>
             <p className="text-gray-500 text-lg font-light tracking-wide">
               Aún no hay fotos
             </p>
@@ -278,7 +289,18 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
       </div>
 
       {/* FAB */}
-      <FAB onFileSelect={handleFileSelect} />
+      <FAB
+        onGallerySelect={handleFileSelect}
+        onCameraClick={() => setShowCamera(true)}
+      />
+
+      {/* Camera Modal */}
+      {showCamera && (
+        <CameraModal
+          onCapture={handleFileSelect}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
 
       {/* Upload Modal */}
       {showUpload && (

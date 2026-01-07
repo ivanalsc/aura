@@ -1,12 +1,13 @@
 'use client'
 
 import { X, Upload, Loader2, Check } from 'lucide-react'
+import { useState } from 'react'
 
 interface UploadModalProps {
   preview: string | null
   uploading: boolean
   onClose: () => void
-  onUpload: () => void
+  onUpload: (caption: string) => void
 }
 
 export default function UploadModal({
@@ -15,13 +16,15 @@ export default function UploadModal({
   onClose,
   onUpload,
 }: UploadModalProps) {
+  const [caption, setCaption] = useState('')
+
   return (
     <div
       className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 md:p-6 z-[1000] backdrop-blur-sm animate-[fadeIn_0.3s_ease-out]"
       onClick={onClose}
     >
       <div
-        className="bg-white/80 backdrop-blur-xl rounded-2xl max-w-[500px] w-full max-h-[90vh] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.2)] border border-white/20 animate-[slideUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"
+        className="bg-white/95 backdrop-blur-sm rounded-[4px] max-w-[500px] w-full max-h-[90vh] overflow-hidden shadow-2xl border border-black/5 animate-[slideUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 border-b border-charcoal/5 flex justify-between items-center bg-white/50 backdrop-blur-md sticky top-0 z-10">
@@ -40,7 +43,7 @@ export default function UploadModal({
 
         <div className="p-6">
           {preview && (
-            <div className="mb-6 rounded-xl overflow-hidden shadow-lg border border-black/5 relative aspect-[4/3] bg-stone-100">
+            <div className="mb-6 rounded-[4px] overflow-hidden shadow-lg border border-black/5 relative aspect-[4/3] bg-stone-100">
               <img
                 src={preview}
                 alt="Preview"
@@ -49,11 +52,26 @@ export default function UploadModal({
             </div>
           )}
 
+          <div className="mb-6">
+            <label htmlFor="caption" className="block text-xs font-medium text-charcoal uppercase tracking-widest mb-2">
+              Pie de foto (Opcional)
+            </label>
+            <textarea
+              id="caption"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Escribe un mensaje..."
+              className="w-full p-4 bg-white border border-black/10 rounded-[4px] text-charcoal placeholder:text-stone-400 focus:outline-none focus:border-charcoal/30 focus:shadow-[0_0_0_2px_rgba(26,26,26,0.05)] transition-all duration-200 resize-none text-sm leading-relaxed"
+              rows={3}
+              disabled={uploading}
+            />
+          </div>
+
           <button
             type="button"
-            onClick={onUpload}
+            onClick={() => onUpload(caption)}
             disabled={uploading}
-            className="w-full p-4 bg-charcoal disabled:bg-stone-400 text-white border-none rounded-xl text-base font-medium cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-wide hover:shadow-lg hover:shadow-charcoal/20 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
+            className="w-full p-4 bg-charcoal disabled:bg-stone-400 text-white border-none rounded-[4px] text-base font-medium cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-3 tracking-widest uppercase hover:bg-black/90 active:scale-[0.99] transition-all duration-200"
           >
             {uploading ? (
               <>

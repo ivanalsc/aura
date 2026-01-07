@@ -1,23 +1,24 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
-      colors: {
-        background: '#F9F7F2',
-        charcoal: '#1A1A1A',
-      },
       fontFamily: {
-        sans: ['var(--font-inter)', 'sans-serif'],
-        serif: ['var(--font-playfair)', 'serif'],
+        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+        grotesk: ['Space Grotesk', 'system-ui', 'sans-serif'],
+      },
+      colors: {
+        border: "rgb(229 231 235)",
+        background: "rgb(255 255 255)",
+        foreground: "rgb(23 23 23)",
       },
     },
   },
   plugins: [],
-}
-export default config
+};
+export default config;
