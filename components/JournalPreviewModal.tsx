@@ -11,7 +11,6 @@ interface JournalPreviewModalProps {
 }
 
 export default function JournalPreviewModal({ pdfUrl, filename, onClose, onDownload }: JournalPreviewModalProps) {
-    // Bloquear scroll al abrir
     useEffect(() => {
         document.body.style.overflow = 'hidden'
         return () => {
@@ -23,7 +22,6 @@ export default function JournalPreviewModal({ pdfUrl, filename, onClose, onDownl
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-[fadeIn_0.3s_ease-out]">
             <div className="bg-[#F9F7F2] w-full max-w-5xl h-[90vh] rounded-[4px] shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.4s_ease-out]">
 
-                {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 bg-white/50 border-b border-black/5 backdrop-blur-sm">
                     <h2 className="text-charcoal font-serif text-xl tracking-wide">
                         Vista Previa del Libro
@@ -36,7 +34,6 @@ export default function JournalPreviewModal({ pdfUrl, filename, onClose, onDownl
                     </button>
                 </div>
 
-                {/* PDF Viewer */}
                 <div className="flex-1 bg-stone-100 p-4 md:p-8 flex items-center justify-center overflow-auto">
                     <div className="shadow-[0_8px_30px_rgba(0,0,0,0.12)] max-w-full h-full">
                         <iframe
@@ -47,7 +44,6 @@ export default function JournalPreviewModal({ pdfUrl, filename, onClose, onDownl
                     </div>
                 </div>
 
-                {/* Footer Actions */}
                 <div className="px-6 py-5 bg-white border-t border-black/5 flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="text-charcoal/50 text-xs font-light tracking-wide hidden md:block">
                         {filename}

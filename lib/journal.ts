@@ -30,11 +30,9 @@ export const generateJournalBlob = async (
     format: 'a4',
   })
 
-  // A4 dimensions at 2x scale (approx 96 DPI * 2)
   const contentWidth = 794
   const contentHeight = 1123
 
-  // --- 1. SETUP ISOLATED IFRAME ---
   const iframe = document.createElement('iframe')
   Object.assign(iframe.style, {
     position: 'fixed',
@@ -51,7 +49,6 @@ export const generateJournalBlob = async (
     const doc = iframe.contentDocument || iframe.contentWindow?.document
     if (!doc) throw new Error("No se pudo acceder al documento del iframe")
 
-    // Define Editorial Styles (CSS Grid/Flex)
     const styleContent = `
       @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400&display=swap');
       
@@ -73,16 +70,17 @@ export const generateJournalBlob = async (
         overflow: hidden;
       }
 
-      /* Image Defaults */
+    
       img {
         display: block;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        object-position: center;
         box-shadow: 2px 4px 12px rgba(0,0,0,0.08); /* "Pegadas al papel" effect */
       }
 
-      /* Typo Utilities */
+     
       .serif { font-family: 'Playfair Display', serif; }
       .sans { font-family: 'Lato', sans-serif; }
       .caption {
@@ -94,7 +92,7 @@ export const generateJournalBlob = async (
         letter-spacing: 0.02em;
       }
 
-      /* --- LAYOUT A: IMPACT (2 Photos) --- */
+   
       .layout-a {
         display: grid;
         grid-template-columns: 72% 28%;
@@ -127,7 +125,7 @@ export const generateJournalBlob = async (
         padding-bottom: 120px;
       }
 
-      /* --- LAYOUT B: MOSAIC (3 Photos) --- */
+    
       .layout-b {
         padding: 80px 60px;
         height: 100%;
@@ -151,7 +149,7 @@ export const generateJournalBlob = async (
         position: relative;
       }
 
-      /* --- LAYOUT C: INSPIRATIONAL (1 Photo) --- */
+ 
       .layout-c {
         padding: 100px;
         height: 100%;
@@ -173,7 +171,7 @@ export const generateJournalBlob = async (
         letter-spacing: 0.05em;
       }
 
-      /* --- FOOTER --- */
+    
       .page-footer {
         position: absolute;
         bottom: 40px;
@@ -184,11 +182,7 @@ export const generateJournalBlob = async (
         gap: 10px;
         opacity: 0.6;
       }
-      .page-footer-line {
-        width: 1px;
-        height: 14px; /* Slightly shorter for balance */
-        background: #1A1A1A;
-      }
+ 
       .page-number {
         font-family: 'Playfair Display', serif;
         font-size: 12px;
@@ -197,7 +191,7 @@ export const generateJournalBlob = async (
       }
     `
 
-    // Render & Capture Helper
+
     const captureFrame = async (html: string) => {
       if (!doc) return ''
       doc.open()
@@ -210,7 +204,7 @@ export const generateJournalBlob = async (
       `)
       doc.close()
 
-      // Wait for images
+
       const images = doc.body.querySelectorAll('img')
       await Promise.all(Array.from(images).map(img => {
         if (img.complete) return Promise.resolve()
@@ -220,7 +214,6 @@ export const generateJournalBlob = async (
         })
       }))
 
-      // Delay for fonts/layout stabilization
       await new Promise(r => setTimeout(r, 150))
 
       const canvas = await html2canvas(doc.body, {
@@ -237,9 +230,7 @@ export const generateJournalBlob = async (
       return canvas.toDataURL('image/jpeg', 0.85)
     }
 
-    // --- GENERATE CONTENT ---
 
-    // 1. Cover
     const coverHtml = `
       <div class="page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="text-align: center; color: #1A1A1A;">
@@ -253,13 +244,9 @@ export const generateJournalBlob = async (
     const coverData = await captureFrame(coverHtml)
     pdf.addImage(coverData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight())
 
-    // 2. Preload all images
     const base64Images = await Promise.all(photos.map(p => toBase64(p.image_url)))
 
-    // 3. Batch Photos (2, 3, 1 Pattern)
-    // Layout A: 2 photos
-    // Layout B: 3 photos
-    // Layout C: 1 photo
+
     let currentIndex = 0
     const layoutPattern = ['A', 'B', 'C']
     let patternIdx = 0
@@ -273,27 +260,23 @@ export const generateJournalBlob = async (
       if (layoutType === 'B') batchSize = 3
       if (layoutType === 'C') batchSize = 1
 
-      // Fallback if not enough photos
       const remaining = photos.length - currentIndex
       if (remaining < batchSize) {
-        // Adapt layout based on remaining
-        if (remaining === 2) batchSize = 2 // Force Layout A or custom 2-grid
-        else batchSize = 1 // Force Layout C
+        if (remaining === 2) batchSize = 2
+        else batchSize = 1
       }
 
       const batchPhotos = photos.slice(currentIndex, currentIndex + batchSize)
       const batchImages = base64Images.slice(currentIndex, currentIndex + batchSize)
 
-      // Generate HTML based on actual batch size (to handle fallbacks)
       let pageHtml = ''
       const footerHtml = `
         <div class="page-footer">
-          <div class="page-footer-line"></div>
+          
           <span class="page-number">${pageNum}</span>
         </div>
       `
 
-      // --- RENDER LAYOUT A (2 Photos) ---
       if (batchSize === 2) {
         pageHtml = `
           <div class="page-container">
@@ -313,7 +296,6 @@ export const generateJournalBlob = async (
           </div>
         `
       }
-      // --- RENDER LAYOUT B (3 Photos) ---
       else if (batchSize === 3) {
         pageHtml = `
           <div class="page-container">
@@ -333,7 +315,6 @@ export const generateJournalBlob = async (
           </div>
         `
       }
-      // --- RENDER LAYOUT C (1 Photo - or Default) ---
       else {
         pageHtml = `
           <div class="page-container">

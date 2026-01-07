@@ -13,17 +13,7 @@ Aura is a modern, real-time shared photo gallery application designed for events
 - **Interaction**: Like photos and see popular moments.
 - **Owner Controls**: Device-based ownership allows users to delete their own photos.
 
-## � Gallery
-
-| Desktop View | Mobile View |
-|:---:|:---:|
-| <img src="public/screenshots/desktop-home.png" width="600" alt="Desktop Home" /> | <img src="public/screenshots/mobile-home.png" width="300" alt="Mobile Home" /> |
-
-| Mobile Menu |
-|:---:|
-| <img src="public/screenshots/mobile-menu.png" width="300" alt="Mobile Menu" /> |
-
-## �🛠 Tech Stack
+## 🛠 Tech Stack
 
 - **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
 - **Database & Storage**: [Supabase](https://supabase.com/)

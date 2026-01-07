@@ -24,7 +24,6 @@ export default function FAB({ onGallerySelect, onCameraClick }: FABProps) {
     <>
       <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 flex flex-col items-end gap-4 z-[100]">
 
-        {/* Gallery Option */}
         <div
           className={`flex items-center gap-3 transition-all duration-300 origin-bottom-right ${isOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-50 pointer-events-none'
             }`}
@@ -40,7 +39,6 @@ export default function FAB({ onGallerySelect, onCameraClick }: FABProps) {
           </button>
         </div>
 
-        {/* Camera Option */}
         <div
           className={`flex items-center gap-3 transition-all duration-300 delay-75 origin-bottom-right ${isOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-50 pointer-events-none'
             }`}
@@ -59,7 +57,6 @@ export default function FAB({ onGallerySelect, onCameraClick }: FABProps) {
           </button>
         </div>
 
-        {/* Main Toggle Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={`w-14 h-14 md:w-16 md:h-16 rounded-full shadow-[0_8px_30px_rgba(26,26,26,0.25)] cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 ${isOpen ? 'bg-white text-charcoal rotate-45' : 'bg-charcoal text-white rotate-0'
@@ -69,7 +66,6 @@ export default function FAB({ onGallerySelect, onCameraClick }: FABProps) {
         </button>
       </div>
 
-      {/* Inputs */}
       <input
         ref={galleryInputRef}
         type="file"

@@ -14,7 +14,6 @@ interface DigitalJournalButtonProps {
 export default function DigitalJournalButton({ eventName, photos }: DigitalJournalButtonProps) {
     const [generating, setGenerating] = useState(false)
 
-    // Preview State
     const [showPreview, setShowPreview] = useState(false)
     const [pdfUrl, setPdfUrl] = useState<string | null>(null)
     const [pdfFilename, setPdfFilename] = useState<string>('')
@@ -52,14 +51,12 @@ export default function DigitalJournalButton({ eventName, photos }: DigitalJourn
             link.click()
             document.body.removeChild(link)
 
-            // Cerrar modal después de descargar
             handleClose()
         }
     }
 
     const handleClose = () => {
         setShowPreview(false)
-        // Limpiar URL del blob para liberar memoria
         if (pdfUrl) URL.revokeObjectURL(pdfUrl)
         setPdfUrl(null)
     }

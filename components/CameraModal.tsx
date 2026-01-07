@@ -54,13 +54,11 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
         const canvas = document.createElement('canvas')
         const video = videoRef.current
 
-        // Set canvas dimensions to match video resolution
         canvas.width = video.videoWidth
         canvas.height = video.videoHeight
 
         const ctx = canvas.getContext('2d')
         if (ctx) {
-            // Mirror image if using front camera
             if (facingMode === 'user') {
                 ctx.translate(canvas.width, 0)
                 ctx.scale(-1, 1)
@@ -71,7 +69,7 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
                 if (blob) {
                     const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' })
                     onCapture(file)
-                    onClose() // Close camera after capture
+                    onClose()
                 }
             }, 'image/jpeg', 0.9)
         }
@@ -91,7 +89,6 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
                 >
                     <X size={28} />
                 </button>
-                {/* Flash placeholder - functionality depends on advanced constraints not supported everywhere */}
                 <button
                     onClick={() => setFlash(!flash)}
                     className={`p-2 rounded-full transition-all ${flash ? 'text-yellow-400' : 'text-white'}`}
@@ -100,7 +97,6 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
                 </button>
             </div>
 
-            {/* Camera View */}
             <div className="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
                 {error ? (
                     <div className="text-white text-center p-6">
@@ -123,7 +119,6 @@ export default function CameraModal({ onCapture, onClose }: CameraModalProps) {
                 )}
             </div>
 
-            {/* Controls */}
             <div className="bg-black/90 p-8 pb-12 flex justify-around items-center">
                 <div className="w-12" /> {/* Spacer */}
 

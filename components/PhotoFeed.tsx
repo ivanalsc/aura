@@ -26,7 +26,6 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
   const [likedPhotos, setLikedPhotos] = useState<Set<string>>(new Set())
 
   useEffect(() => {
-    // Initialize device ID
     let id = localStorage.getItem('aura_device_id')
     if (!id) {
       id = crypto.randomUUID()
@@ -34,12 +33,10 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
     }
     setDeviceId(id)
 
-    // Load liked photos from local storage
     const liked = JSON.parse(localStorage.getItem('aura_liked_photos') || '[]')
     setLikedPhotos(new Set(liked))
   }, [])
 
-  // Fetch photos from Supabase
   const fetchPhotos = async () => {
     const { data, error } = await supabase
       .from('photos')
@@ -54,7 +51,6 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
   useEffect(() => {
     fetchPhotos()
 
-    // Subscribe to real-time changes
     const channel = supabase
       .channel(`photos-${eventId}`)
       .on(
@@ -124,7 +120,6 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
     setUploading(true)
 
     try {
-      // Upload to Supabase Storage
       const fileName = `${eventId}/${Date.now()}-${selectedFile.name}`
       const { error: uploadError } = await supabase.storage
         .from(STORAGE_BUCKET)
@@ -135,12 +130,10 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
 
       if (uploadError) throw uploadError
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from(STORAGE_BUCKET)
         .getPublicUrl(fileName)
 
-      // Insert into database and get returned data
       const { data: insertedData, error: dbError } = await supabase
         .from('photos')
         .insert([
@@ -157,15 +150,12 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
 
       if (dbError) throw dbError
 
-      // Manually update state for immediate feedback
       if (insertedData) {
         setPhotos(prev => [insertedData as Photo, ...prev])
       }
 
-      // Success - wait a bit before closing for better UX
       await new Promise(resolve => setTimeout(resolve, 500))
 
-      // Close modal
       handleCloseModal()
     } catch (error) {
       console.error('Upload error:', error)
@@ -177,7 +167,6 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
   const handleDelete = async (photoId: string) => {
     if (!confirm('¿Estás seguro de que quieres eliminar esta foto?')) return
 
-    // Optimistic update
     setPhotos(prev => prev.filter(p => p.id !== photoId))
 
     const { error } = await supabase
@@ -189,7 +178,7 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
     if (error) {
       console.error('Error deleting photo:', error)
       alert('Error al eliminar la foto')
-      fetchPhotos() // Revert by refetching
+      fetchPhotos()
     }
   }
 
@@ -197,12 +186,10 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
     const isLiked = likedPhotos.has(photoId)
     const newLikes = isLiked ? currentLikes - 1 : currentLikes + 1
 
-    // Optimistic update
     setPhotos(prev => prev.map(p =>
       p.id === photoId ? { ...p, likes: newLikes } : p
     ))
 
-    // Update local state
     const newLiked = new Set(likedPhotos)
     if (isLiked) {
       newLiked.delete(photoId)
@@ -212,7 +199,6 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
     setLikedPhotos(newLiked)
     localStorage.setItem('aura_liked_photos', JSON.stringify([...newLiked]))
 
-    // Update in Supabase
     const { error } = await supabase
       .from('photos')
       .update({ likes: newLikes })
@@ -220,15 +206,13 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
 
     if (error) {
       console.error('Error updating likes:', error)
-      // Revert optimistic update
       setPhotos(prev => prev.map(p =>
         p.id === photoId ? { ...p, likes: currentLikes } : p
       ))
-      setLikedPhotos(likedPhotos) // Revert local state
+      setLikedPhotos(likedPhotos)
       return
     }
 
-    // Trigger particle animation only on like
     if (!isLiked) {
       const newParticle: Particle = {
         id: Date.now(),
@@ -252,12 +236,10 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
 
   return (
     <>
-      {/* Actions Header */}
       <div className="max-w-7xl mx-auto px-4 pt-6 flex justify-end animate-[fadeIn_0.5s_ease-out]">
         <DigitalJournalButton eventName={eventId} photos={photos} />
       </div>
 
-      {/* Masonry Grid */}
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         {photos.length > 0 ? (
           <div
@@ -288,13 +270,11 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
         )}
       </div>
 
-      {/* FAB */}
       <FAB
         onGallerySelect={handleFileSelect}
         onCameraClick={() => setShowCamera(true)}
       />
 
-      {/* Camera Modal */}
       {showCamera && (
         <CameraModal
           onCapture={handleFileSelect}
@@ -302,7 +282,6 @@ export default function PhotoFeed({ eventId }: PhotoFeedProps) {
         />
       )}
 
-      {/* Upload Modal */}
       {showUpload && (
         <UploadModal
           preview={preview}
