@@ -24,10 +24,10 @@ export default function UploadModal({
       onClick={onClose}
     >
       <div
-        className="bg-white/95 backdrop-blur-sm rounded-[4px] max-w-[500px] w-full max-h-[90vh] overflow-hidden shadow-2xl border border-black/5 animate-[slideUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"
+        className="bg-white/95 backdrop-blur-sm rounded-[4px] max-w-[500px] w-full max-h-[90vh] flex flex-col shadow-2xl border border-black/5 animate-[slideUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-charcoal/5 flex justify-between items-center bg-white/50 backdrop-blur-md sticky top-0 z-10">
+        <div className="p-6 border-b border-charcoal/5 flex-none flex justify-between items-center bg-white/50 backdrop-blur-md z-10">
           <h2 className="font-serif text-2xl md:text-3xl text-charcoal m-0 tracking-tight">
             Compartir Momento
           </h2>
@@ -41,7 +41,7 @@ export default function UploadModal({
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto">
           {preview && (
             <div className="mb-6 rounded-[4px] overflow-hidden shadow-lg border border-black/5 relative aspect-[4/3] bg-stone-100">
               <img

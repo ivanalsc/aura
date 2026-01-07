@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aura - Event Photo Journal
 
-## Getting Started
+Aura is a modern, real-time shared photo gallery application designed for events. It allows guests to instantly upload and view photos in a live feed, which can then be automatically compiled into a beautifully designed, editorial-style digital PDF journal.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Real-time Photo Feed**: Instantly view photos shared by guests as they happen (powered by Supabase Realtime).
+- **Instant Uploads**: Seamless photo uploading from mobile devices with compression and optimization.
+- **Editorial PDF Generation**: Automatically generates a "Digital Journal" of the event.
+  - **Dynamic Layouts**: Intelligently mixes layouts (Impact, Mosaic, Minimalist) for a magazine-like feel.
+  - **Styles**: Premium aesthetic with cream backgrounds, serif typography, and shadow effects.
+- **Event Privacy**: Optional password protection for private events.
+- **Interaction**: Like photos and see popular moments.
+- **Owner Controls**: Device-based ownership allows users to delete their own photos.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## � Gallery
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Desktop View | Mobile View |
+|:---:|:---:|
+| <img src="public/screenshots/desktop-home.png" width="600" alt="Desktop Home" /> | <img src="public/screenshots/mobile-home.png" width="300" alt="Mobile Home" /> |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Mobile Menu |
+|:---:|
+| <img src="public/screenshots/mobile-menu.png" width="300" alt="Mobile Menu" /> |
 
-## Learn More
+## �🛠 Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Database & Storage**: [Supabase](https://supabase.com/)
+- **Styling**: TailwindCSS & Custom CSS for PDF generation
+- **PDF Engine**: `jspdf` & `html2canvas`
+- **Icons**: Lucide React
+- **Language**: TypeScript
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Getting Started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1.  **Clone the repository**
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+3.  **Environment Setup**:
+    Create a `.env.local` file with your Supabase credentials:
+    ```env
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+4.  **Run Development Server**:
+    ```bash
+    npm run dev
+    ```
+5.  **Build for Production**:
+    ```bash
+    npm run build
+    ```
 
-## Deploy on Vercel
+## 📂 Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/app`: Next.js App Router pages and layouts.
+- `/components`: Reusable UI components (PhotoFeed, CameraModal, etc.).
+- `/lib`: Utilities, including the complex `journal.ts` for PDF generation logic.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎨 Design Philosophy
+
+Aura focuses on a "Premium Minimalist" aesthetic, utilizing plenty of whitespace, high-quality typography (Playfair Display & Lato), and subtle animations to create an elegant user experience suitable for weddings and high-end events.

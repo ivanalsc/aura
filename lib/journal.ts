@@ -30,15 +30,11 @@ export const generateJournalBlob = async (
     format: 'a4',
   })
 
-  // Dimensiones A4 en mm y px (aprox para canvas)
-  const wMm = pdf.internal.pageSize.getWidth()
-  const hMm = pdf.internal.pageSize.getHeight()
-  // Usamos 2x para calidad (794px ancho es ~96dpi A4, x2 = 1588)
+  // A4 dimensions at 2x scale (approx 96 DPI * 2)
   const contentWidth = 794
   const contentHeight = 1123
 
-  // --- 1. PREPARAR IFRAME AISLADO ---
-  // Usamos un iframe para asegurar que NO herede estilos globales (oklch)
+  // --- 1. SETUP ISOLATED IFRAME ---
   const iframe = document.createElement('iframe')
   Object.assign(iframe.style, {
     position: 'fixed',
@@ -55,9 +51,9 @@ export const generateJournalBlob = async (
     const doc = iframe.contentDocument || iframe.contentWindow?.document
     if (!doc) throw new Error("No se pudo acceder al documento del iframe")
 
-    // Definimos estilos seguros (HEX) dentro del iframe
+    // Define Editorial Styles (CSS Grid/Flex)
     const styleContent = `
-      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=Lato:wght@300;400&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400&display=swap');
       
       body {
         margin: 0;
@@ -65,62 +61,167 @@ export const generateJournalBlob = async (
         background: #F9F7F2;
         font-family: 'Lato', sans-serif;
         -webkit-font-smoothing: antialiased;
+        color: #1A1A1A;
       }
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
+      
       .page-container {
         width: ${contentWidth}px;
         height: ${contentHeight}px;
         background: #F9F7F2;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Image Defaults */
+      img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        box-shadow: 2px 4px 12px rgba(0,0,0,0.08); /* "Pegadas al papel" effect */
+      }
+
+      /* Typo Utilities */
+      .serif { font-family: 'Playfair Display', serif; }
+      .sans { font-family: 'Lato', sans-serif; }
+      .caption {
+        font-size: 10px;
+        line-height: 1.5;
+        color: #4A4A4A;
+        font-weight: 300;
+        margin-top: 8px;
+        letter-spacing: 0.02em;
+      }
+
+      /* --- LAYOUT A: IMPACT (2 Photos) --- */
+      .layout-a {
+        display: grid;
+        grid-template-columns: 72% 28%;
+        height: 100%;
+        padding: 60px 50px;
+      }
+      .layout-a-main {
+        position: relative;
+        height: 85%;
+        align-self: flex-start;
+      }
+      .layout-a-main img.big-img {
+        height: 100%;
+      }
+      .layout-a-overlay {
+        position: absolute;
+        bottom: -40px;
+        right: -30px;
+        width: 240px;
+        height: 300px;
+        border: 8px solid #F9F7F2;
+        box-shadow: 4px 8px 24px rgba(0,0,0,0.12);
+        z-index: 10;
+      }
+      .layout-a-sidebar {
+        padding-left: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding-bottom: 120px;
+      }
+
+      /* --- LAYOUT B: MOSAIC (3 Photos) --- */
+      .layout-b {
+        padding: 80px 60px;
+        height: 100%;
+        display: flex;
+        gap: 25px;
+        align-items: center;
+      }
+      .layout-b-col-left {
+        flex: 1;
+        height: 650px;
+      }
+      .layout-b-col-right {
+        flex: 1;
+        height: 650px;
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+      }
+      .layout-b-item-small {
+        flex: 1;
+        position: relative;
+      }
+
+      /* --- LAYOUT C: INSPIRATIONAL (1 Photo) --- */
+      .layout-c {
+        padding: 100px;
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
       }
-      h1 { font-family: 'Playfair Display', serif; }
-      .photo-frame {
-        padding: 15px; 
-        background: #fff; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06); 
-        border: 1px solid rgba(0,0,0,0.03);
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
+      .layout-c-frame {
+        width: 450px;
+        height: 550px;
         margin-bottom: 30px;
+      }
+      .layout-c-text {
+        max-width: 400px;
+        text-align: center;
+        font-size: 11px;
+        color: #666;
+        letter-spacing: 0.05em;
+      }
+
+      /* --- FOOTER --- */
+      .page-footer {
+        position: absolute;
+        bottom: 40px;
+        right: 45px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        opacity: 0.6;
+      }
+      .page-footer-line {
+        width: 1px;
+        height: 14px; /* Slightly shorter for balance */
+        background: #1A1A1A;
+      }
+      .page-number {
+        font-family: 'Playfair Display', serif;
+        font-size: 12px;
+        color: #1A1A1A;
+        line-height: 1; /* Ensure no extra height */
       }
     `
 
-    // Función helper para renderizar y capturar dentro del iframe
+    // Render & Capture Helper
     const captureFrame = async (html: string) => {
       if (!doc) return ''
-
       doc.open()
       doc.write(`
         <!DOCTYPE html>
         <html>
-          <head>
-            <style>${styleContent}</style>
-          </head>
+          <head><style>${styleContent}</style></head>
           <body>${html}</body>
         </html>
       `)
       doc.close()
 
-      // Esperar carga de imágenes internas
-      const imgs = doc.body.querySelectorAll('img')
-      if (imgs.length > 0) {
-        await Promise.all(Array.from(imgs).map(img => {
-          if (img.complete) return Promise.resolve()
-          return new Promise(resolve => {
-            img.onload = resolve
-            img.onerror = resolve
-          })
-        }))
-      }
+      // Wait for images
+      const images = doc.body.querySelectorAll('img')
+      await Promise.all(Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve()
+        return new Promise(resolve => {
+          img.onload = resolve
+          img.onerror = resolve
+        })
+      }))
 
-      // Breve espera para fuentes/layout
-      await new Promise(r => setTimeout(r, 100))
+      // Delay for fonts/layout stabilization
+      await new Promise(r => setTimeout(r, 150))
 
       const canvas = await html2canvas(doc.body, {
         scale: 2,
@@ -136,58 +237,132 @@ export const generateJournalBlob = async (
       return canvas.toDataURL('image/jpeg', 0.85)
     }
 
-    // --- 1. PORTADA ---
+    // --- GENERATE CONTENT ---
+
+    // 1. Cover
     const coverHtml = `
-      <div class="page-container">
+      <div class="page-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div style="text-align: center; color: #1A1A1A;">
-          <h1 style="font-size: 80px; margin-bottom: 20px; font-weight: 400; color: #333;">AURA</h1>
-          <div style="width: 40px; height: 1px; background: #C1866A; margin: 0 auto 30px auto;"></div>
-          <h2 style="font-size: 24px; text-transform: uppercase; letter-spacing: 0.3em; font-weight: 300; margin-bottom: 12px; color: #333;">${eventName}</h2>
-          <p style="font-size: 14px; letter-spacing: 0.1em; color: #666;">${eventDate}</p>
+          <h1 style="font-family: 'Playfair Display', serif; font-size: 90px; margin-bottom: 25px; font-weight: 400; color: #2A2A2A;">AURA</h1>
+          <div style="width: 50px; height: 1px; background: #C1866A; margin: 0 auto 35px auto;"></div>
+          <h2 style="font-family: 'Lato', sans-serif; font-size: 16px; text-transform: uppercase; letter-spacing: 0.4em; font-weight: 300; margin-bottom: 15px; color: #4A4A4A;">${eventName}</h2>
+          <p style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px; letter-spacing: 0.1em; color: #888;">${eventDate}</p>
         </div>
       </div>
     `
     const coverData = await captureFrame(coverHtml)
-    pdf.addImage(coverData, 'JPEG', 0, 0, wMm, hMm)
+    pdf.addImage(coverData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight())
 
-    // --- 2. PRECARGAR FOTOS Y GENERAR PÁGINAS ---
+    // 2. Preload all images
     const base64Images = await Promise.all(photos.map(p => toBase64(p.image_url)))
 
-    for (let i = 0; i < photos.length; i++) {
-      const photo = photos[i]
-      const base64Src = base64Images[i]
+    // 3. Batch Photos (2, 3, 1 Pattern)
+    // Layout A: 2 photos
+    // Layout B: 3 photos
+    // Layout C: 1 photo
+    let currentIndex = 0
+    const layoutPattern = ['A', 'B', 'C']
+    let patternIdx = 0
+    let pageNum = 1
 
-      pdf.addPage()
+    while (currentIndex < photos.length) {
+      const layoutType = layoutPattern[patternIdx % layoutPattern.length]
+      let batchSize = 1
 
-      const pageHtml = `
-        <div class="page-container" style="padding: 80px 75px; position: relative;">
-          <div class="photo-frame">
-            <img 
-              src="${base64Src}" 
-              style="max-width: 550px; max-height: 650px; object-fit: contain; display: block;"
-            />
-          </div>
-          
-          ${photo.caption ? `
-            <div style="width: 100%; max-width: 580px; text-align: left; margin-top: 10px;">
-              <p style="font-size: 14px; color: #333; font-weight: 300; line-height: 1.6; letter-spacing: 0.02em; margin: 0;">
-                ${photo.caption}
-              </p>
-            </div>
-          ` : ''}
+      if (layoutType === 'A') batchSize = 2
+      if (layoutType === 'B') batchSize = 3
+      if (layoutType === 'C') batchSize = 1
 
-          <div style="position: absolute; bottom: 40px; right: 40px; font-size: 10px; color: #999;">
-            ${i + 1}
-          </div>
+      // Fallback if not enough photos
+      const remaining = photos.length - currentIndex
+      if (remaining < batchSize) {
+        // Adapt layout based on remaining
+        if (remaining === 2) batchSize = 2 // Force Layout A or custom 2-grid
+        else batchSize = 1 // Force Layout C
+      }
+
+      const batchPhotos = photos.slice(currentIndex, currentIndex + batchSize)
+      const batchImages = base64Images.slice(currentIndex, currentIndex + batchSize)
+
+      // Generate HTML based on actual batch size (to handle fallbacks)
+      let pageHtml = ''
+      const footerHtml = `
+        <div class="page-footer">
+          <div class="page-footer-line"></div>
+          <span class="page-number">${pageNum}</span>
         </div>
       `
 
-      const pageData = await captureFrame(pageHtml)
-      pdf.addImage(pageData, 'JPEG', 0, 0, wMm, hMm)
+      // --- RENDER LAYOUT A (2 Photos) ---
+      if (batchSize === 2) {
+        pageHtml = `
+          <div class="page-container">
+            <div class="layout-a">
+              <div class="layout-a-main">
+                <img src="${batchImages[0]}" class="big-img" />
+                <div class="layout-a-overlay">
+                  <img src="${batchImages[1]}" />
+                </div>
+              </div>
+              <div class="layout-a-sidebar">
+                ${batchPhotos[0].caption ? `<div class="caption"><strong>01.</strong> ${batchPhotos[0].caption}</div>` : ''}
+                ${batchPhotos[1].caption ? `<div class="caption" style="margin-top:20px;"><strong>02.</strong> ${batchPhotos[1].caption}</div>` : ''}
+              </div>
+            </div>
+            ${footerHtml}
+          </div>
+        `
+      }
+      // --- RENDER LAYOUT B (3 Photos) ---
+      else if (batchSize === 3) {
+        pageHtml = `
+          <div class="page-container">
+            <div class="layout-b">
+              <div class="layout-b-col-left">
+                <img src="${batchImages[0]}" />
+              </div>
+              <div class="layout-b-col-right">
+                <div class="layout-b-item-small"><img src="${batchImages[1]}" /></div>
+                <div class="layout-b-item-small"><img src="${batchImages[2]}" /></div>
+              </div>
+            </div>
+            <div style="position: absolute; bottom: 85px; left: 60px; width: calc(100% - 120px); display: flex; gap: 20px;">
+               ${batchPhotos.map((p, idx) => p.caption ? `<div class="caption" style="flex:1;"><strong>0${idx + 1}.</strong> ${p.caption}</div>` : '').join('')}
+            </div>
+            ${footerHtml}
+          </div>
+        `
+      }
+      // --- RENDER LAYOUT C (1 Photo - or Default) ---
+      else {
+        pageHtml = `
+          <div class="page-container">
+            <div class="layout-c">
+              <div class="layout-c-frame">
+                <img src="${batchImages[0]}" />
+              </div>
+              ${batchPhotos[0].caption ? `
+                <div class="layout-c-text serif">
+                  "${batchPhotos[0].caption}"
+                </div>
+              ` : ''}
+            </div>
+            ${footerHtml}
+          </div>
+        `
+      }
+
+      pdf.addPage()
+      const pageCanvas = await captureFrame(pageHtml)
+      pdf.addImage(pageCanvas, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight())
+
+      currentIndex += batchSize
+      patternIdx++
+      pageNum++
     }
 
-    const blob = pdf.output('blob')
-    const url = URL.createObjectURL(blob)
+    const outputBlob = pdf.output('blob')
+    const url = URL.createObjectURL(outputBlob)
     const filename = `Aura_${eventName.replace(/[^a-z0-9]/gi, '_')}_Journal.pdf`
 
     return { url, filename }
