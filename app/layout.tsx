@@ -9,23 +9,21 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Aura — Comparte momentos efímeros",
   description: "Plataforma para compartir fotos de eventos sin registro. Escanea, captura y comparte momentos únicos.",
-  generator: "v0.app",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
+        url: "/icon.png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/icon-dark-32x32.png",
+        url: "/icon-dark.png",
         media: "(prefers-color-scheme: dark)",
       },
       {
         url: "/icon.svg",
         type: "image/svg+xml",
       },
-    ],
-    apple: "/apple-icon.png",
+    ]
   },
 }
 
