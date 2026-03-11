@@ -2,7 +2,7 @@
 
 Aura is a modern, real-time shared photo gallery application designed for events. It allows guests to instantly upload and view photos in a live feed, which can then be automatically compiled into a beautifully designed, editorial-style digital PDF journal.
 
-## ✨ Features
+##  Features
 
 - **Real-time Photo Feed**: Instantly view photos shared by guests as they happen (powered by Supabase Realtime).
 - **Instant Uploads**: Seamless photo uploading from mobile devices with compression and optimization.
@@ -22,7 +22,7 @@ Aura is a modern, real-time shared photo gallery application designed for events
 - **Icons**: Lucide React
 - **Language**: TypeScript
 
-## 🚀 Getting Started
+##  Getting Started
 
 1.  **Clone the repository**
 2.  **Install dependencies**:
@@ -44,12 +44,12 @@ Aura is a modern, real-time shared photo gallery application designed for events
     npm run build
     ```
 
-## 📂 Project Structure
+##  Project Structure
 
 - `/app`: Next.js App Router pages and layouts.
 - `/components`: Reusable UI components (PhotoFeed, CameraModal, etc.).
 - `/lib`: Utilities, including the complex `journal.ts` for PDF generation logic.
 
-## 🎨 Design Philosophy
+## Design Philosophy
 
 Aura focuses on a "Premium Minimalist" aesthetic, utilizing plenty of whitespace, high-quality typography (Playfair Display & Lato), and subtle animations to create an elegant user experience suitable for weddings and high-end events.
